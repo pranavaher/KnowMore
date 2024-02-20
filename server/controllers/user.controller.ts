@@ -8,6 +8,7 @@ import ejs from "ejs";
 import path from "path";
 import sendMail from "../utils/sendMail";
 import { sendToken } from "../utils/jwt";
+import { redis } from "../utils/redis";
 
 // Register User
 interface IRegistrationBody{
@@ -148,11 +149,19 @@ export const loginUser = catchAsyncError(async(req: Request, res: Response, next
   }
 })
 
+// Define an interface to extend the Request type
+interface AuthenticatedRequest extends Request {
+  user?: any; // Define the user property
+}
+
 // Logout user
-export const logoutUser = catchAsyncError(async(req: Request, res: Response, next: NextFunction) => {
+export const logoutUser = catchAsyncError(async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     res.cookie("access_token", "", {maxAge: 1});
     res.cookie("refresh_token", "", {maxAge: 1});
+
+    const userId = req.user?._id || ""
+    redis.del(userId)
 
     res.status(200).json({
       success: true,
