@@ -7,6 +7,7 @@ import jwt, { Secret } from "jsonwebtoken";
 import ejs from "ejs";
 import path from "path";
 import sendMail from "../utils/sendMail";
+import { sendToken } from "../utils/jwt";
 
 // Register User
 interface IRegistrationBody{
@@ -113,3 +114,53 @@ export const activateUser = catchAsyncError(async(req: Request, res: Response, n
     return next(new ErrorHandler(error.message, 400));
   }
 })
+
+// Login User
+interface ILoginRequest {
+  email: string;
+  password: string;
+}
+
+export const loginUser = catchAsyncError(async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const {email, password} = req.body as ILoginRequest
+
+    if(!email || !password){
+    return next(new ErrorHandler("Please enter email and password", 400));
+    }
+
+    const user = await userModel.findOne({email}).select("+password");
+
+    if(!user){
+    return next(new ErrorHandler("Invalid email or password", 400));
+    }
+
+    const isPasswordmatch = await user.comparePassword(password);
+
+    if(!isPasswordmatch){
+      return next(new ErrorHandler("Invalid email or password", 400));
+    }
+
+    sendToken(user, 200, res);
+
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+})
+
+// Logout user
+export const logoutUser = catchAsyncError(async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    res.cookie("access_token", "", {maxAge: 1});
+    res.cookie("refresh_token", "", {maxAge: 1});
+
+    res.status(200).json({
+      success: true,
+      message: "Logged out successfully.",   
+    })
+    
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+})
+
