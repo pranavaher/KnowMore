@@ -9,6 +9,7 @@ import path from "path";
 import sendMail from "../utils/sendMail";
 import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utils/jwt";
 import { redis } from "../utils/redis";
+import { getUserById } from "../services/user.service";
 
 // Register User
 interface IRegistrationBody{
@@ -210,3 +211,37 @@ export const updateAccessToken = catchAsyncError(async(req: Request, res: Respon
   }
 })
 
+// get user info
+export const getUserInfo = catchAsyncError(async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?._id;
+    getUserById(userId, res);        
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+})
+
+interface ISocialAuthBody {
+  name: string,
+  email: string,
+  avatar: string,
+}
+
+// social authentication
+export const socialAuth = catchAsyncError(async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const {email, name, avatar} = req.body as ISocialAuthBody;
+    const user = await userModel.findOne({email});
+
+    if(!user){
+      const newUser = await userModel.create({name, email, avatar});
+      sendToken(newUser, 200, res);
+    }
+    else {
+      sendToken(user, 200, res);
+    }
+
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+})
