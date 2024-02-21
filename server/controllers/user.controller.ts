@@ -10,6 +10,7 @@ import sendMail from "../utils/sendMail";
 import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utils/jwt";
 import { redis } from "../utils/redis";
 import { getUserById } from "../services/user.service";
+import cloudinary from "cloudinary";
 
 // Register User
 interface IRegistrationBody{
@@ -292,7 +293,7 @@ interface IUpdatePassword {
   newPassword: string;
 }
 
-export const updatePasswrd = catchAsyncError(async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const updatePassword = catchAsyncError(async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const {oldPassword, newPassword} = req.body as IUpdatePassword;
 
@@ -322,6 +323,53 @@ export const updatePasswrd = catchAsyncError(async(req: AuthenticatedRequest, re
       user,
     })
 
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+})
+
+interface IUpdateProfilePicture {
+  avatar: string
+}
+
+// update profile picture
+export const updateProfilePicture = catchAsyncError(async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const {avatar} = req.body as IUpdateProfilePicture;
+
+    const userId = req.user?._id;
+
+    const user = await userModel.findById(userId);
+
+    if(user && avatar){
+      if(user?.avatar?.public_id){
+        await cloudinary.v2.uploader.destroy(user?.avatar?.public_id);
+
+        const myCloud = await cloudinary.v2.uploader.upload(avatar, {folder: "avatars", width: 150, height: 150});
+  
+        user.avatar = {
+          public_id: myCloud.public_id,
+          url: myCloud.secure_url,
+        }
+      }
+      else {      
+        const myCloud = await cloudinary.v2.uploader.upload(avatar, {folder: "avatars", width: 150, height: 150});
+  
+        user.avatar = {
+          public_id: myCloud.public_id,
+          url: myCloud.secure_url,
+        }
+      }
+    }
+
+    await user?.save();
+
+    await redis.set(userId, JSON.stringify(user));
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
   } catch (error: any) {
     return next(new ErrorHandler(error.message, 400));
   }
