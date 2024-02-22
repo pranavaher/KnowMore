@@ -130,3 +130,33 @@ export const getAllCourse = catchAsyncError(async(req: Request, res: Response, n
     return next(new ErrorHandler(error.message, 500))
   }
 })
+
+// Define an interface to extend the Request type
+interface AuthenticatedRequest extends Request {
+  user?: any; // Define the user property
+}
+
+// Get course content --- only valid user
+export const getCourseByUser = catchAsyncError(async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const userCourseList = req.user?.courses;
+    const courseId = req.params.id;
+
+    const courseExists = userCourseList?.find((course: any) => course._id.toString() === courseId);
+
+    if(!courseExists){
+      return next(new ErrorHandler("You are not eligible to access this course.", 404));
+    }
+
+    const course = await CourseModel.findById(courseId);
+
+    const content = course?.courseData;
+
+    res.status(201).json({
+      success: true,
+      content,
+    });
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 500))
+  }
+})
