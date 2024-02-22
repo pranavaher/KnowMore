@@ -13,6 +13,8 @@ import { getUserById } from "../services/user.service";
 import cloudinary from "cloudinary";
 import { createCourse } from "../services/course.service";
 import CourseModel from "../models/course.model";
+import mongoose from "mongoose";
+import { idText } from "typescript";
 
 // Upload course
 export const uploadCourse = catchAsyncError(async(req: Request, res: Response, next: NextFunction) => {
@@ -158,5 +160,44 @@ export const getCourseByUser = catchAsyncError(async(req: AuthenticatedRequest, 
     });
   } catch (error: any) {
     return next(new ErrorHandler(error.message, 500))
+  }
+})
+
+// Add questions in course
+interface IAddQuestionData {
+  question: string;
+  courseId: string;
+  contentId: string;
+}
+
+export const addQuestion =  catchAsyncError(async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const {question, courseId, contentId}: IAddQuestionData = req.body;
+    const course = await CourseModel.findById(courseId);
+
+    if(!mongoose.Types.ObjectId.isValid(contentId)){
+      return next(new ErrorHandler("Invalid content id.", 400))
+    }
+    
+    const courseContent = course?.courseData?.find((item: any) => item._id.toString() === contentId);
+    
+    if(!courseContent) {
+      return next(new ErrorHandler("Invalid content id.", 500));
+    }
+
+    // create new question
+    const newQuestion: any = { user: req.user, question, questionReplies: [] };
+
+    // add question to course content
+    courseContent.questions.push(newQuestion);
+
+    await course?.save();
+
+    res.status(200).json({
+      success: true,
+      course
+    });    
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 500));
   }
 })
