@@ -12,6 +12,7 @@ import { redis } from "../utils/redis";
 import { getUserById } from "../services/user.service";
 import cloudinary from "cloudinary";
 import { createCourse } from "../services/course.service";
+import CourseModel from "../models/course.model";
 
 // Upload course
 export const uploadCourse = catchAsyncError(async(req: Request, res: Response, next: NextFunction) => {
@@ -35,3 +36,33 @@ export const uploadCourse = catchAsyncError(async(req: Request, res: Response, n
   }
 })
 
+// Edit course
+export const editCourse = catchAsyncError(async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const data = req.body;
+    const thumbnail = data.thumbnail;
+    
+    if(thumbnail){
+      await cloudinary.v2.uploader.destroy(thumbnail.public_id);
+
+      const myCloud = await cloudinary.v2.uploader.upload(thumbnail, {folder: "courses", width: 200, height: 200});
+
+      data.thumbnail = {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
+      }
+    }
+
+    const courseId = req.params.id;
+
+    const course = await CourseModel.findByIdAndUpdate(courseId, {$set: data},{new: true})
+    
+    res.status(201).json({
+      success: true,
+      course,
+    })
+
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 500))
+  }
+})
