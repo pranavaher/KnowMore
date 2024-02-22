@@ -81,3 +81,20 @@ export const getSingleCourse = catchAsyncError(async(req: Request, res: Response
     return next(new ErrorHandler(error.message, 500))
   }
 })
+
+// Get all courses --- without purchasing
+export const getAllCourse = catchAsyncError(async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const courses = await CourseModel.find().select("-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links");    
+    const totalCourses = courses.length;
+    
+    res.status(201).json({
+      success: true,
+      totalCourses, 
+      courses,
+    });
+
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 500))
+  }
+})
