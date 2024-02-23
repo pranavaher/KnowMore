@@ -8,10 +8,10 @@ interface IComment extends Document {
   questionReplies?: IComment[];
 }
 interface IReview extends Document {
-  user: object;
+  user: IUser;
   rating: number;
   comment: string;
-  commentReplies: IComment[];
+  commentReplies?: IComment[];
 }
 
 interface ILink extends Document {
@@ -43,9 +43,9 @@ interface ICourse extends Document {
   demoUrl: string;
   benefits: {title: string}[];
   prerequisites: {title: string}[];
-  views: IReview[];
+  reviews: IReview[];
   courseData: ICourseData[];
-  rating?: number;
+  ratings?: number;
   purchased?: number;  
 }
 
@@ -119,9 +119,9 @@ const courseSchema = new Schema<ICourse>({
   },
   benefits: [{title: String}],
   prerequisites: [{title: String}],
-  views: [reviewSchema],
+  reviews: [reviewSchema],
   courseData: [courseDataSchema],
-  rating: {
+  ratings: {
     type: Number,
     default: 0,
   },
