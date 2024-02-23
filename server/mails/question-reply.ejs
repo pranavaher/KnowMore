@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Reply to Your Question</title>
+  <style>
+    /* Add your custom CSS styles here */
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .logo img {
+      max-width: 150px;
+      height: auto;
+    }
+    .content {
+      padding: 20px;
+    }
+    .message {
+      margin-bottom: 20px;
+    }
+    .button {
+      display: inline-block;
+      background-color: #007bff;
+      color: #fff;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+    }
+</style>
+</head>
+<body>
+  <h1>Hello <%= name %>, </h1>
+  <p class="message">A new reply has been added to your question in the video "<%= title %>".</p>
+  <p class="message">Please login to view reply and continue discussion.</p>
+  <p class="message">Thank you for being interactive member in community.</p>
+  <a href="https://youtube.com" class="button">Go to Course Platform</a>
+</body>
+</html>
