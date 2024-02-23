@@ -12,7 +12,7 @@ import { redis } from "../utils/redis";
 import { getUserById } from "../services/user.service";
 import cloudinary from "cloudinary";
 import { createCourse } from "../services/course.service";
-import CourseModel from "../models/course.model";
+import courseModel from "../models/course.model";
 import mongoose from "mongoose";
 import { idText } from "typescript";
 
@@ -57,7 +57,7 @@ export const editCourse = catchAsyncError(async(req: Request, res: Response, nex
 
     const courseId = req.params.id;
 
-    const course = await CourseModel.findByIdAndUpdate(courseId, {$set: data},{new: true})
+    const course = await courseModel.findByIdAndUpdate(courseId, {$set: data},{new: true})
     
     res.status(201).json({
       success: true,
@@ -84,7 +84,7 @@ export const getSingleCourse = catchAsyncError(async(req: Request, res: Response
       })
     }
     else {
-      const course = await CourseModel.findById(req.params.id).select("-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links");
+      const course = await courseModel.findById(req.params.id).select("-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links");
 
       await redis.set(courseId, JSON.stringify(course));
       
@@ -116,7 +116,7 @@ export const getAllCourse = catchAsyncError(async(req: Request, res: Response, n
       });
     }
     else {
-      const courses = await CourseModel.find().select("-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links");
+      const courses = await courseModel.find().select("-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links");
 
       await redis.set("allCourses", JSON.stringify(courses));
 
@@ -150,7 +150,7 @@ export const getCourseByUser = catchAsyncError(async(req: AuthenticatedRequest, 
       return next(new ErrorHandler("You are not eligible to access this course.", 404));
     }
 
-    const course = await CourseModel.findById(courseId);
+    const course = await courseModel.findById(courseId);
 
     const content = course?.courseData;
 
@@ -173,7 +173,7 @@ interface IAddQuestionData {
 export const addQuestion =  catchAsyncError(async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const {question, courseId, contentId}: IAddQuestionData = req.body;
-    const course = await CourseModel.findById(courseId);
+    const course = await courseModel.findById(courseId);
 
     if(!mongoose.Types.ObjectId.isValid(contentId)){
       return next(new ErrorHandler("Invalid content id.", 400))
@@ -214,7 +214,7 @@ export const addAnwser = catchAsyncError(async(req: AuthenticatedRequest, res: R
   try {
     const {answer, courseId, contentId, questionId}: IAddAnswerData = req.body;
     
-    const course = await CourseModel.findById(courseId);
+    const course = await courseModel.findById(courseId);
 
     if(!mongoose.Types.ObjectId.isValid(contentId)){
       return next(new ErrorHandler("Invalid content id.", 400))
@@ -289,7 +289,7 @@ export const addReview = catchAsyncError(async(req: AuthenticatedRequest, res: R
       return next(new ErrorHandler("Please purchase this code to add your review.", 404));
     }
 
-    const course = await CourseModel.findById(courseId);
+    const course = await courseModel.findById(courseId);
     
     const {review, rating} = req.body as IAddReviewData;
 
@@ -341,7 +341,7 @@ export const addReplyToReview = catchAsyncError(async(req: AuthenticatedRequest,
   try {
     const {comment, courseId, reviewId} = req.body as IReplyToReviewData;
 
-    const course = await CourseModel.findById(courseId);
+    const course = await courseModel.findById(courseId);
 
     if(!course){
       return next(new ErrorHandler("Course not found", 404));
