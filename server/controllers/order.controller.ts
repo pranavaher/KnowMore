@@ -10,7 +10,7 @@ import ejs from "ejs";
 import path from "path";
 import sendMail from "../utils/sendMail";
 import courseModel from "../models/course.model";
-import { newOrder } from "../services/order.service";
+import { newOrder, fetchAllOrders } from "../services/order.service";
 
 interface AuthenticatedRequest extends Request {
   user?: any; // Define the user property
@@ -83,5 +83,14 @@ export const createOrder = catchAsyncError(async(req: AuthenticatedRequest, res:
 
   } catch (error: any) {
     return next(new ErrorHandler(error.message, 500));
+  }
+})
+
+// Get All Orders
+export const getAllOrders = catchAsyncError(async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    fetchAllOrders(res);
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 400));
   }
 })

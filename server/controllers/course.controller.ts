@@ -16,6 +16,7 @@ import courseModel from "../models/course.model";
 import mongoose from "mongoose";
 import { idText } from "typescript";
 import notificationModel from "../models/notification.model";
+import { fetchAllCourses } from "../services/course.service"
 
 // Upload course
 export const uploadCourse = catchAsyncError(async(req: Request, res: Response, next: NextFunction) => {
@@ -161,6 +162,15 @@ export const getCourseByUser = catchAsyncError(async(req: AuthenticatedRequest, 
     });
   } catch (error: any) {
     return next(new ErrorHandler(error.message, 500))
+  }
+})
+
+// Get All Courses
+export const getAllCourses = catchAsyncError(async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    fetchAllCourses(res);
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 400));
   }
 })
 

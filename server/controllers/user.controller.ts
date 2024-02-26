@@ -9,7 +9,7 @@ import path from "path";
 import sendMail from "../utils/sendMail";
 import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utils/jwt";
 import { redis } from "../utils/redis";
-import { getUserById } from "../services/user.service";
+import { getUserById, fetchAllUsers } from "../services/user.service";
 import cloudinary from "cloudinary";
 
 // Register User
@@ -219,6 +219,15 @@ export const getUserInfo = catchAsyncError(async(req: AuthenticatedRequest, res:
   try {
     const userId = req.user?._id;
     getUserById(userId, res);        
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+})
+
+// Get All Users
+export const getAllUsers = catchAsyncError(async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    fetchAllUsers(res);
   } catch (error: any) {
     return next(new ErrorHandler(error.message, 400));
   }

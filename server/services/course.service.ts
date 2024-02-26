@@ -11,3 +11,13 @@ export const createCourse = async(res: Response, data: any, next: NextFunction) 
       course,
     })
 }
+
+// Get All Courses
+export const fetchAllCourses = async (res:Response) => {
+  const courses = await courseModel.find().sort({createdAt: -1});
+  
+  res.status(201).json({
+    success: true,
+    courses
+  }); 
+}
