@@ -394,3 +394,28 @@ export const updateUserRole = catchAsyncError(async(req: AuthenticatedRequest, r
     return next(new ErrorHandler(error.message, 400));
   }
 })
+
+// Delete User
+export const deleteUser = catchAsyncError(async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const {id} = req.params;
+    
+    const user = await userModel.findById(id);
+
+    if(!user) {
+      return next(new ErrorHandler("User not found.", 400));
+    }
+    
+    await user.deleteOne({id});
+
+    await redis.del(id);
+
+    res.status(200).json({
+      success: true,
+      message: "user deleted successfully"
+    });
+
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+})
