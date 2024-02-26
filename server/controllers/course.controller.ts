@@ -15,6 +15,7 @@ import { createCourse } from "../services/course.service";
 import courseModel from "../models/course.model";
 import mongoose from "mongoose";
 import { idText } from "typescript";
+import notificationModel from "../models/notification.model";
 
 // Upload course
 export const uploadCourse = catchAsyncError(async(req: Request, res: Response, next: NextFunction) => {
@@ -191,6 +192,12 @@ export const addQuestion =  catchAsyncError(async(req: AuthenticatedRequest, res
     // add question to course content
     courseContent.questions.push(newQuestion);
 
+    await notificationModel.create({
+      user: req.user?._id,
+      title: "New Question",
+      message: `New question is asked in ${courseContent?.title} of course ${course?.name}`
+    });
+
     await course?.save();
 
     res.status(200).json({
@@ -240,7 +247,11 @@ export const addAnwser = catchAsyncError(async(req: AuthenticatedRequest, res: R
     await course?.save();
 
     if(req.user?._id === question.user._id){
-      // create a notification.
+      await notificationModel.create({
+        user: req.user?._id,
+        title: "New Answer to Question",
+        message: `New answer is added in ${courseContent?.title} of course ${course?.name}`
+      });
     }
     else {
       const data = { name: question.user.name, title: courseContent.title };
