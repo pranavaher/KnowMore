@@ -9,7 +9,7 @@ import path from "path";
 import sendMail from "../utils/sendMail";
 import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utils/jwt";
 import { redis } from "../utils/redis";
-import { getUserById, fetchAllUsers } from "../services/user.service";
+import { getUserById, fetchAllUsers, updateUserRoleService } from "../services/user.service";
 import cloudinary from "cloudinary";
 
 // Register User
@@ -379,6 +379,17 @@ export const updateProfilePicture = catchAsyncError(async(req: AuthenticatedRequ
       success: true,
       user,
     });
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+})
+
+// Updatre user role
+export const updateUserRole = catchAsyncError(async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const {id, role} = req.body;
+    updateUserRoleService(res, id, role);
+
   } catch (error: any) {
     return next(new ErrorHandler(error.message, 400));
   }
