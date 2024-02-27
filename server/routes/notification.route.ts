@@ -1,5 +1,6 @@
 import express from "express";
 import { authorizeRoles, isAuthenticated } from "../middleware/auth";
+
 import { getNotification, updateNotification } from "../controllers/notifivation.controller";
 
 const notificationRouter = express.Router();

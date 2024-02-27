@@ -1,6 +1,7 @@
-import express, {Request, Response, NextFunction} from "express";
-import { activateUser, getUserInfo, loginUser, logoutUser, socialAuth, updateAccessToken, updatePassword, updateUserInfo, updateProfilePicture, userRegistration, getAllUsers, updateUserRole, deleteUser } from "../controllers/user.controller"; 
+import express from "express";
 import { authorizeRoles, isAuthenticated } from "../middleware/auth";
+
+import { activateUser, getUserInfo, loginUser, logoutUser, socialAuth, updateAccessToken, updatePassword, updateUserInfo, updateProfilePicture, userRegistration, getAllUsers, updateUserRole, deleteUser } from "../controllers/user.controller"; 
 
 const userRouter = express.Router()
 
@@ -18,4 +19,5 @@ userRouter.put('/update-user-role', isAuthenticated, authorizeRoles("admin"), up
 userRouter.delete('/delete-user/:id', isAuthenticated, authorizeRoles("admin"), deleteUser)
 
 userRouter.get("/get-all-users", isAuthenticated, authorizeRoles("admin"), getAllUsers)
+
 export default userRouter;

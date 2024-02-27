@@ -1,8 +1,9 @@
-require("dotenv").config();
-import notificationModel from "../models/notification.model"
 import { Request, Response, NextFunction } from "express";
 import ErrorHandler from "../utils/ErrorHandler";
 import { catchAsyncError } from "../middleware/catchAsyncErrors";
+
+import notificationModel from "../models/notification.model"
+
 import cron from "node-cron"
 
 interface AuthenticatedRequest extends Request {
