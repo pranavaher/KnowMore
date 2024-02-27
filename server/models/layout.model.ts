@@ -50,7 +50,7 @@ const layoutSchema = new Schema<Layout> ({
   },
 });
 
-const layoutModel = Model<Layout> = mongoose.model("Layout", layoutSchema);
+const layoutModel: Model<Layout> = mongoose.model("Layout", layoutSchema);
 
 export default layoutModel;
 
